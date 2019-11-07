@@ -1,144 +1,71 @@
+# Predicting Home Prices in King County
+<img src='images/town_pic.jpg'>
 
-# Module 1 Final Project
+## The Scenario
+For this project, I was primarily thinking about a company that buys and remodels homes for the purpose of reselling at a higher price.  The goal is to not only figure out how best to improve the price of a home, but how to identify which homes are likely to provide the best return on investment.
 
+- **Primary Stakeholder:** A company that buys houses in King County with the intent of remodeling / renovating and reselling at higher prices.
 
-## Introduction
+- **Problem Statement:** Given King County home sales data in the last year, identify the most important factors that impact price, and make recommendations on how the firm can maximize its profits.
 
-In this lesson, we'll review all of the guidelines and specifications for the final project for Module 1. 
+## Methodology
+We are going to first look at the various factors that might be good predictors of home price, determine which ones are relevant and which ones aren’t, then look at the nature of those relationships. We will finish up by looking at some specific recommendations.
 
-## Objectives
-You will be able to:
-* Describe all required aspects of the final project for Module 1
-* Describe all required deliverables
-* Describe what constitutes a successful project
-* Describe what the experience of the project review should be like
+## Scope
+With the data available, I determined that the potential predictors of sale price can be generally grouped into 4 categories: 
+ 
+- **Size**: Includes total square footage, number of bedrooms and bathrooms, number of floors, lot size, etc.
+- **Condition**: Includes condition rating, year built, and a grade assigned by King County.
+- **Location**: Based on gps coordinates, zip code, and whether it has a waterfront view
+- **Market Conditions**: Look at the date sold and determine if there are any inflationary or cyclical trends that would significantly impact the selling price of a home
 
-## Final Project Summary
+## Relevant Factors
+By looking at the collinearity heatmap below, we can see which factors have the strongest correlation with price, and which factors have the strongest correlation with each other.
 
-You've made it all the way through the first module of this course - take a minute to celebrate your awesomeness! 
+<img src='images/cov_matrix_23_inputs.png'>
 
-<img src='awesome.gif'>
+### Insignificant Factors
+Trends in market fluctuations were all but non-existent, and buyers appear to be surprisingly unwilling to pay a premium for higher quality. Now, there is a caveat here in that the grade does serve as a strong predictor of price, but unless you know how that grade is calculated, the information is not likely to be useful. Hence, it was not considered relevant for this analysis.
 
-All that remains in Module 1 is to put our newfound data science skills to use with a final project! You should expect this project to take between 40 and 50 hours of solid, focused effort. If you're done way quicker, go back and dig in deeper or try some of the optional "level up" suggestions. If you're worried that you're going to get to 30 hrs and still not even have the data imported, reach out to an instructor in slack ASAP to get some help!
+Location was the strongest predictor of price, with certain zip codes providing better opportunities for profit increases. However, waterfront property itself did not seem to matter much either.
 
-## The Dataset
+### Most Significant Factors
+#### Square Footage (Home & Lot Size)
+It should be no surprise that as size increases, so does price. For every percentage increase in square footage, the sale price can be expected to increase by a little more than a half a percent. To put this into perspective, if someone purchased a \\$500k, 800 square foot home, and you increased the square footage by 25\%, it would be expected to sell for approximately \\$60k - \\$85k more. However, it is important to remember that how you build matters as well.
 
-For this project, you'll be working with the King County House Sales dataset. We've modified the dataset to make it a bit more fun and challenging.  The dataset can be found in the file `"kc_house_data.csv"`, in this repo. 
+<img src='images/size_lot.png'>
 
-The description of the column names can be found in the column_names.md file in this repository. As with most real world data sets, the coliumn names are not perfectly described, so you'll have to do some research or use your best judgement if you have questions relating to what the data means.
+As we can see in the graph on the right, buyers pay a premium for larger lot sizes. So if you simply build outward, you may end up seeing diminishing returns for your efforts. 
 
-You'll clean, explore, and model this dataset with a multivariate linear regression to predict the sale price of houses as accurately as possible. 
+#### Bedrooms & Floors
+As house size increases, it is normal to expect that number of bedrooms increases. So, it would seem that more bedrooms lead to higher prices. However, does this mean that you can take a home, knock down and rearrange some walls to add an extra bedroom, then turn around and sell it for more? Sadly, the answer is no. As can be seen here, when the bedroom count to square footage ratio increases, price decreases. This tells us that buyers prefer more space, not more rooms. 
 
-## The Deliverables
+<img src='images/floors_beds.png'>
 
-There will be three deliverables for this project:
+A similar, albeit weaker relationship with the number of floors relative to square footage also exists: people don’t like walking up stairs. It should be noted that lot size plays a stronger role than number of floors, suggesting that it would be better to build upwards rather than outwards.
 
-1. **A well documented Jupyter Notebook** containing any code you've written for this project and comments explaining it.  
-2. A short **Keynote/PowerPoint/Google Slides presentation** (delivered as a PDF export) giving a high-level overview of your methodology and recommendations for non-technical stakeholders.
-3. **A blog post** (800-1500 words) about one element of the project - it could be the EDA, the feature selection, the choice of visualizations or anything else technical relating to the project. It should be targeted at your peers - aspiring data scientists.
+#### Location
+You’ll see we have plotted all home sales on a zip code map based on their gps coordinates (data was exported to csv and the graphic was created using Tableau). 
 
-## The Process
+<img src='images/map_tableau.png'>
 
-### 1. Getting Started
+Darker shades of red indicate higher selling price. The section in the circle is where you will find the highest prices. This is important to be aware of because a 10\% - 15\% premium will get you more absolute profit on a \\$1m home than a \\$500k home. Of course, it is unrealistic to expect that there are enough opportunities to buy in just this area, but if you focus in the north-west quadrant of the map, you can see that you will generally find more lucrative opportunities.
 
-Please start by reviewing this document. If you have any questions, please ask them in slack ASAP so (a) we can answer the questions and (b) so we can update this repository to make it clearer.
+## Prediction Results
+After applying log normalization and z-score standardization, a multilinear regression model was build with 10-fold cross-validation. Ultimately, we were able to achive a predicted r-squared score of 82.77\% (+/-1.4\%).
 
-Once you're done with the first 12 sections, please start on the project. Do that by forking this repository, cloning it locally, and working in the student.ipynb file. Make sure to also add and commit a pdf of your presentation to the repository with a file name of `presentation.pdf`.
+## Recommendations
+Based on all of this information, I can make a few recommendations. 
+- First, whether you are building a new home or remodeling and existing one: location, location, location.  Look for houses with large lots in the north-western section of the county.
 
-### 2. The Project Review
+- The ideal home for remodel will be 1.5 floors without a basement. By expanding the top floor, square footage can be increased by ~33\% without having to add stairs. This is the best opportunity to maximize ROI.
 
-> **When you start on the project, please also reach out to an instructor immediately to schedule your project review** (if you're not sure who to schedule with, please ask in slack!)
+- Don’t spend too much effort upgrading, and don’t add bedrooms. Turning additional square footage into an open space or loft will be cheaper, and will be more appealing to potential homebuyers.
 
-#### What to expect from the Project Review
+## Next Steps
+Already, we have a lot of good information to increase profitability, but there is still more that can be done to help refine the strategy.
+1. First, we can identify homes sold at least twice in the year, checking for changes in size, condition, and price. Such an analysis can potentially provide validation of our results, or uncover new opportunities and potential pitfalls. Even if it only serves to reinforce the findings here, it’s good to have that much more confidence. 
 
-Project reviews are focused on preparing you for technical interviews. Treat project reviews as if they were technical interviews, in both attitude and technical presentation *(sometimes technical interviews will feel arbitrary or unfair - if you want to get the job, commentiing on that is seldom a good choice)*.
+2. Another option would be to perform a cluster analysis on prices relative to location. This would allow for an improved ability to select locations. 
 
-The project review is comprised of a 45 minute 1:1 session with one of the instructors. During your project review, be prepared to:
-
-#### 1. Deliver your PDF presentation to a non-technical stakeholder. 
-In this phase of the review (~10 mins) your instructor will play the part of a non-technical stakeholder that you are presenting your findings to. The presentation should not exceed 5 minutes, giving the "stakeholder" 5 minutes to ask questions.
-
-In the first half of the presentation (2-3 mins), you should summarize your methodology in a way that will be comprehensible to someone with no background in data science and that will increase their confidence in you and your findings. In the second half (the remaining 2-3 mins) you should summarize your findings and be ready to answer a couple of non-technical questions from the audience. The questions might relate to technical topics (sampling bias, confidence, etc) but will be asked in a non-technical way and need to be answered in a way that does not assume a background in statistics or machine learning. You can assume a smart, business stakeholder, with a non-quantitative college degree.
-
-#### 2. Go through the Jupyter Notebook, answering questions about how you made certain decisions. Be ready to explain things like:
-    * "how did you pick the question(s) that you did?"
-    * "why are these questions important from a business perspective?"
-    * "how did you decide on the data cleaning options you performed?"
-    * "why did you choose a given method or library?"
-    * "why did you select those visualizations and what did you learn from each of them?"
-    * "why did you pick those features as predictors?"
-    * "how would you interpret the results?"
-    * "how confident are you in the predictive quality of the results?"
-    * "what are some of the things that could cause the results to be wrong?"
-
-Think of the first phase of the review (~30 mins) as a technical boss reviewing your work and asking questions about it before green-lighting you to present to the business team. You should practice using the appropriate technical vocabulary to explain yourself. Don't be surprised if the instructor jumps around or sometimes cuts you off - there is a lot of ground to cover, so that may happen.
-
-If any requirements are missing or if significant gaps in understanding are uncovered, be prepared to do one or all of the following:
-* Perform additional data cleanup, visualization, feature selection, modeling and/or model validation
-* Submit an improved version
-* Meet again for another Project Review
-
-What won't happen:
-* You won't be yelled at, belittled, or scolded
-* You won't be put on the spot without support
-* There's nothing you can do to instantly fail or blow it
-
-**Please note: We need to receive the URL of your repository at least 24 hours before and please have the project finished at least 3 hours before your review so we can look at your materials in advance.** 
-
-
-## Requirements
-
-This section outlines the rubric we'll use to evaluate your project.
-
-### 1. Technical Report Must-Haves
-
-For this project, your Jupyter Notebook should meet the following specifications:
-
-#### Organization/Code Cleanliness
-
-* The notebook should be well organized, easy to follow,  and code should be commented where appropriate.  
-    * Level Up: The notebook contains well-formatted, professional looking markdown cells explaining any substantial code.  All functions have docstrings that act as professional-quality documentation
-* The notebook is written for a technical audiences with a way to both understand your approach and reproduce your results. The target audience for this deliverable is other data scientists looking to validate your findings. 
-
-#### Visualizations & EDA
-
-* Your project contains at least 4 _meaningful_ data visualizations, with corresponding interpretations. All visualizations are well labeled with axes labels, a title, and a legend (when appropriate)  
-* You pose at least 3 meaningful questions and aswer them through EDA.  These questions should be well labled and easy to identify inside the notebook. 
-    * **Level Up**: Each question is clearly answered with a visualization that makes the answer easy to understand.   
-* Your notebook should contain 1 - 2 paragraphs briefly explaining your approach to this project **through the OSEMN framework**. 
-    
-#### Model Quality/Approach
-
-* Your model should not include any predictors with p-values greater than .05.  
-* Your notebook shows an iterative approach to modeling, and details the parameters and results of the model at each iteration.  
-    * **Level Up**: Whenever necessary, you briefly explain the changes made from one iteration to the next, and why you made these choices.  
-* You provide at least 1 paragraph explaining your final model.   
-* You pick at least 3 coefficients from your final model and explain their impact on the price of a house in this dataset.   
-
-
-### 2. Non-Technical Presentation Must-Haves
-
-The second deliverable should be a Keynote, PowerPoint or Google Slides presentation delivered as a pdf file in your fork of this repository with the file name of `presentation.pdf` detailing the results of your project.  Your target audience is non-technical people interested in using your findings to maximize their profit when selling their home. 
-
-Your presentation should:
-
-* Contain between 5 - 10 professional-quality slides.  
-    * **Level Up**: The slides should use visualizations whenever possible, and avoid walls of text. 
-* Take no more than 5 minutes to present.   
-* Avoid technical jargon and explain the results in a clear, actionable way for non-technical audiences.   
-
-**_Your presentation should contain at least 2 concrete recommendations for how to improve the selling price of a home._**
-
-### 3. Blog Post
-
-Please also write a blog post about one element of the project - it could be the EDA, the feature selection, the choice of visualizations or anything else technical relating to the project. It should be between 800-1500 words and should be targeted at your peers - aspiring data scientists.
-
-
-## Summary
-
-The end of module projects and project reviews are a critical part of the program. They give you a chance to both bring together all the skills you've learned into realistic projects and to practice key "business judgement" and communication skills that you otherwise might not get as much practice with.
-
-The projects are serious and important. They are not graded, but they can be passed and they can be failed. Take the project seriously, put the time in, ask for help from your peers or instructors early and often if you need it, and treat the review as a job interview and you'll do great. We're rooting for you to succeed and we're only going to ask you to take a review again if we believe that you need to. We'll also provide open and honest feedback so you can improve as quickly and efficiently as possible.
-
-Finally, this is your first project. We don't expect you to remember all of the terms or to get all of the answers right. If in doubt, be honest. If you don't know something, say so. If you can't remember it, just say so. It's very unusual for someone to complete a project review without being asked a question they're unsure of, we know you might be nervous which may affect your performance. Just be as honest, precise and focused as you can be, and you'll do great!
-
+3. Finally, we can perform the entire analysis with a different target variable: price per square foot. Areas with the highest price per square foot are likely to result in higher returns on investment, even when optimal conditions may not present.
